@@ -1,6 +1,6 @@
 import streamlit as st
-import openai
 from pathlib import Path
+from smart_apply.cover_letter import CoverLetterGenerator
 
 # Page config
 st.set_page_config(
@@ -43,41 +43,18 @@ if st.button("Generate Cover Letter"):
     else:
         try:
             with st.spinner("Generating your cover letter..."):
-                # Configure OpenAI
-                openai.api_key = api_key
-                
-                # Prepare the prompt
-                prompt = f"""
-                Generate a professional cover letter based on the following:
-                
-                Job Description:
-                {job_description}
-                
-                Resume:
-                {resume_text}
-                
-                Create a compelling cover letter that highlights relevant experience and skills from the resume 
-                that match the job requirements. The tone should be professional but personable.
-                """
-                
                 # Generate cover letter
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "You are a professional cover letter writer."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.7,
-                )
+                generator = CoverLetterGenerator(api_key)
+                cover_letter = generator.generate(job_description, resume_text)
                 
                 # Display the generated cover letter
                 st.markdown("### Generated Cover Letter")
-                st.markdown(response.choices[0].message.content)
+                st.markdown(cover_letter)
                 
                 # Add download button
                 st.download_button(
                     label="Download Cover Letter",
-                    data=response.choices[0].message.content,
+                    data=cover_letter,
                     file_name="cover_letter.txt",
                     mime="text/plain"
                 )
