@@ -9,6 +9,12 @@ Streamline Your Job Application Process With LLM
 * User-friendly web interface with model selection
 * Customizable cover letter generation
 * Default templates for job descriptions and resumes
+* Client-server architecture for better scalability
+
+## Architecture
+The application consists of two main components:
+* FastAPI backend server - Handles AI model interactions and core logic
+* Streamlit frontend - Provides user interface and interaction
 
 ## Installation
 
@@ -35,17 +41,43 @@ cp config.yaml.example config.yaml
 # Edit config.yaml with your settings
 ```
 
-4. Run the Streamlit app:
+## Running the Application
 
+You have three options to run the application:
+
+### Option 1: Run both services with single command
+
+On Unix-like systems (Linux/MacOS):
+```bash
+chmod +x run.sh  # Make script executable (first time only)
+./run.sh
+```
+
+On Windows:
+```batch
+run.bat
+```
+
+### Option 2: Run services separately
+1. Start the FastAPI server:
+```bash
+python run_server.py
+```
+
+2. In a new terminal, start the Streamlit frontend:
 ```bash
 streamlit run app.py
 ```
 
-If you encounter any module errors, try reinstalling the requirements:
-```bash
-pip uninstall smart-apply  # Remove any existing installation
-pip install -r requirements.txt  # Reinstall all requirements
-```
+### Option 3: Development mode
+For development, you might want to run the services in separate terminals to see the logs clearly:
+* Terminal 1: `python run_server.py`
+* Terminal 2: `streamlit run app.py`
+
+The services will be available at:
+* Frontend: http://localhost:8501
+* Backend API: http://localhost:8000
+* API Documentation: http://localhost:8000/docs
 
 ## Configuration
 The `config.yaml` file supports the following settings:
@@ -74,7 +106,7 @@ defaults:
 ### Configuration Options:
 
 1. **AI Model Settings**:
-   - `model`: Specify the model to use (e.g., gpt-4-turbo-preview for OpenAI)
+   - `model`: Specify the model to use
    - `api_key`: Your API key for the service (can also be entered in UI)
    - `base_url`: API endpoint URL
 
@@ -82,26 +114,65 @@ defaults:
    - `resume`: Default resume template to pre-fill in the UI
    - `jd`: Default job description template to pre-fill in the UI
 
-## Usage
-1. Select your preferred AI model provider from the sidebar (OpenAI or DeepSeek)
-2. Enter your API key (if not configured in config.yaml)
-3. Modify the pre-filled job description and resume (or use the defaults)
-4. Click "Generate Cover Letter" to create a customized cover letter
-5. Download the generated cover letter using the download button
+## API Endpoints
+
+The FastAPI backend provides the following endpoints:
+
+* `POST /generate` - Generate cover letter
+  - Request body: job description, resume, API key, and model provider
+  - Returns: Generated cover letter
+
+* `GET /config/{provider}` - Get provider configuration
+  - Path parameter: AI model provider name
+  - Returns: Provider configuration including API key and model settings
+
+For detailed API documentation, visit http://localhost:8000/docs when the server is running.
+
+# Architect
+smart-apply/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   └── routes.py        # FastAPI routes (原 server.py)
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py        # 配置管理
+│   │   │   └── generator.py     # 原 cover_letter.py
+│   │   └── models/
+│   │       ├── __init__.py
+│   │       └── request.py       # Pydantic models
+│   ├── config/
+│   │   ├── config.yaml.example
+│   │   └── config.yaml
+│   ├── requirements.txt
+│   └── main.py                  # FastAPI 入口 (原 run_server.py)
+│
+├── frontend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── config.py           # 前端配置
+│   │   └── pages/
+│   │       ├── __init__.py
+│   │       └── home.py         # Streamlit 页面 (原 app.py)
+│   ├── config/
+│   │   └── config.yaml
+│   └── requirements.txt
+│
+├── scripts/
+│   ├── run.sh                  # Unix 启动脚本
+│   └── run.bat                 # Windows 启动脚本
+│
+├── README.md
+└── setup.py
 
 ## Change Log
-* 2024-11-05: Added multi-model support
-  * Added support for OpenAI and DeepSeek models
-  * Implemented configurable defaults
-  * Added model selection dropdown
-* 2024-11-05: Added Streamlit web interface
-  * Created basic web interface for inputting JD and resume
-  * Implemented cover letter generation using AI APIs
-  * Added download functionality for generated cover letters
-* 2024-11-06: Configuration system update
-  * Switched to YAML configuration format
-  * Added support for default templates
-  * Improved configuration management
+* 2024-11-09: Major architecture update
+  * Split into client-server architecture
+  * Added FastAPI backend
+  * Improved error handling and configuration
+* Previous changes...
 
 ## Coming Soon
 * Skills gap analysis
