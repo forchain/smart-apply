@@ -2,6 +2,8 @@
 
 Streamline Your Job Application Process With LLM
 
+![Main Interface](screenshots/main.png)
+
 ## Features
 
 * Support for multiple AI models (OpenAI and DeepSeek)
@@ -31,13 +33,27 @@ cd smart-apply
 python -m venv venv
 source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 pip install --upgrade pip  # Ensure pip is up to date
+
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+
+# Install frontend dependencies
+cd ../frontend
 pip install -r requirements.txt
 ```
 
 3. Configure the application:
 
 ```bash
-cp config.yaml.example config.yaml
+# Configure backend
+cd ../backend
+cp config/config.yaml.example config/config.yaml
+# Edit config.yaml with your settings
+
+# Configure frontend
+cd ../frontend
+cp config/config.yaml.example config/config.yaml
 # Edit config.yaml with your settings
 ```
 
@@ -125,12 +141,10 @@ smart-apply/
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── api/
-│   │   │   ├── __init__.py
-│   │   │   └── routes.py        # FastAPI routes (原 server.py)
 │   │   ├── core/
 │   │   │   ├── __init__.py
-│   │   │   ├── config.py        # 配置管理
-│   │   │   └── generator.py     # 原 cover_letter.py
+│   │   │   ├── config.py         
+│   │   │   └── generator.py     
 │   │   └── models/
 │   │       ├── __init__.py
 │   │       └── request.py       # Pydantic models
@@ -138,33 +152,29 @@ smart-apply/
 │   │   ├── config.yaml.example
 │   │   └── config.yaml
 │   ├── requirements.txt
-│   └── main.py                  # FastAPI 入口 (原 run_server.py)
+│   └── main.py                  # FastAPI entry 
 │
 ├── frontend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── config.py           # 前端配置
-│   │   └── pages/
-│   │       ├── __init__.py
-│   │       └── home.py         # Streamlit 页面 (原 app.py)
+│   │   ├── config.py           
+│   │   └── main.py             # Streamlit app
 │   ├── config/
 │   │   └── config.yaml
 │   └── requirements.txt
 │
+├── screenshots/                 # Application screenshots
+│   ├── main.png
+│   ├── generation.png
+│   └── model.png
+│
 ├── scripts/
-│   ├── run.sh                  # Unix 启动脚本
-│   └── run.bat                 # Windows 启动脚本
+│   ├── run.sh                  # Unix 
+│   └── run.bat                 # Windows 
 │
 ├── README.md
 └── setup.py
 ```
-
-## Change Log
-* 2024-11-12: Major architecture update
-  * Split into client-server architecture
-  * Added FastAPI backend
-  * Improved error handling and configuration
-* Previous changes...
 
 ## Coming Soon
 * Skills gap analysis

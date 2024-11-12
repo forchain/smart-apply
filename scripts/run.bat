@@ -17,16 +17,17 @@ if exist "%PROJECT_ROOT%\venv\Scripts\activate.bat" (
     call "%PROJECT_ROOT%\venv\Scripts\activate.bat"
 )
 
-:: Create necessary directories
-mkdir "%PROJECT_ROOT%\backend\app\api" 2>nul
-mkdir "%PROJECT_ROOT%\backend\app\core" 2>nul
-mkdir "%PROJECT_ROOT%\backend\app\models" 2>nul
-mkdir "%PROJECT_ROOT%\backend\config" 2>nul
-mkdir "%PROJECT_ROOT%\frontend\app\utils" 2>nul
-mkdir "%PROJECT_ROOT%\frontend\config" 2>nul
+:: Function to check and install dependencies
+:check_dependencies
+echo Checking dependencies in %1...
+if exist "%1\requirements.txt" (
+    pip install -r "%1\requirements.txt" >nul 2>&1
+)
+goto :eof
 
-:: Add project root to PYTHONPATH
-set "PYTHONPATH=%PROJECT_ROOT%;%PYTHONPATH%"
+:: Install dependencies
+call :check_dependencies "%PROJECT_ROOT%\backend"
+call :check_dependencies "%PROJECT_ROOT%\frontend"
 
 :: Start FastAPI server
 echo Starting FastAPI server...

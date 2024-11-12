@@ -1,5 +1,5 @@
 import yaml
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from pathlib import Path
 
 class Config:
@@ -38,3 +38,11 @@ class Config:
     def get_default_jd(self) -> str:
         """Get default job description text"""
         return self._config.get('defaults', {}).get('jd', '')
+
+    def get_cover_letter_example(self, language: str) -> str:
+        """Get example cover letter for specified language"""
+        examples = self._config.get('defaults', {}).get('cover_letter_examples', [])
+        for example in examples:
+            if example.get('language') == language:
+                return example.get('content', '')
+        return ''

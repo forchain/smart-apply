@@ -19,14 +19,18 @@ if [ -d "${PROJECT_ROOT}/venv" ]; then
     source "${PROJECT_ROOT}/venv/bin/activate" 2>/dev/null || source "${PROJECT_ROOT}/venv/Scripts/activate" 2>/dev/null
 fi
 
-# Create necessary directories if they don't exist
-mkdir -p "${PROJECT_ROOT}/backend/app/"{api,core,models} \
-         "${PROJECT_ROOT}/backend/config" \
-         "${PROJECT_ROOT}/frontend/app/utils" \
-         "${PROJECT_ROOT}/frontend/config"
+# Function to check and install dependencies
+check_dependencies() {
+    local dir=$1
+    if [ -f "${dir}/requirements.txt" ]; then
+        echo "Checking dependencies in ${dir}..."
+        pip install -r "${dir}/requirements.txt" >/dev/null 2>&1
+    fi
+}
 
-# Add project root to PYTHONPATH
-export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH}"
+# Install dependencies
+check_dependencies "${PROJECT_ROOT}/backend"
+check_dependencies "${PROJECT_ROOT}/frontend"
 
 # Start FastAPI server
 echo "Starting FastAPI server..."
