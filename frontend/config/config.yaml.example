@@ -1,0 +1,11 @@
+# API Configuration
+api:
+  base_url: "http://localhost:8000/api/v1"  # FastAPI backend URL
+
+# Default Templates
+defaults:
+  resume: |
+    # Your default resume template here
+    
+  jd: |
+    # Your default job description template here 

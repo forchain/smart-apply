@@ -129,6 +129,7 @@ The FastAPI backend provides the following endpoints:
 For detailed API documentation, visit http://localhost:8000/docs when the server is running.
 
 # Architect
+```
 smart-apply/
 ├── backend/
 │   ├── app/
@@ -166,9 +167,10 @@ smart-apply/
 │
 ├── README.md
 └── setup.py
+```
 
 ## Change Log
-* 2024-11-09: Major architecture update
+* 2024-11-12: Major architecture update
   * Split into client-server architecture
   * Added FastAPI backend
   * Improved error handling and configuration

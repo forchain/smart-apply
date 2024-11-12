@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
 class GenerateRequest(BaseModel):
@@ -6,14 +6,16 @@ class GenerateRequest(BaseModel):
     job_description: str
     resume: str
     api_key: Optional[str] = None
-    model_provider: str = "openai"
+    provider: str = "openai"
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "job_description": "Software Engineer position...",
                 "resume": "John Doe\nSoftware Engineer...",
                 "api_key": "your-api-key",
-                "model_provider": "openai"
+                "provider": "openai"
             }
-        } 
+        },
+        protected_namespaces=()
+    ) 

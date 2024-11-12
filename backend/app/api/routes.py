@@ -10,7 +10,7 @@ router = APIRouter()
     summary="Generate Cover Letter")
 async def generate_cover_letter(request: GenerateRequest):
     try:
-        generator = CoverLetterGenerator(request.api_key, request.model_provider)
+        generator = CoverLetterGenerator(request.api_key, request.provider)
         cover_letter = generator.generate(request.job_description, request.resume)
         return {"cover_letter": cover_letter}
     except Exception as e:
