@@ -2,10 +2,6 @@ import yaml
 from typing import Dict, Any, Optional
 from pathlib import Path
 
-def get_config_path() -> Path:
-    """Get the config file path"""
-    return Path(__file__).parent.parent / 'config' / 'config.yaml'
-
 class Config:
     _instance = None
     _config = None
@@ -20,7 +16,7 @@ class Config:
             self._config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
-        config_path = get_config_path()
+        config_path = Path(__file__).parent.parent / 'config' / 'config.yaml'
         if not config_path.exists():
             return {}
         
@@ -30,6 +26,10 @@ class Config:
     def get_api_base_url(self) -> str:
         """Get API base URL"""
         return self._config.get('api', {}).get('base_url', 'http://localhost:8000/api/v1')
+
+    def get_provider_api_key(self, provider: str) -> str:
+        """Get API key for specified provider"""
+        return self._config.get('providers', {}).get(provider, {}).get('api_key', '')
 
     def get_default_resume(self) -> str:
         """Get default resume text"""

@@ -46,33 +46,23 @@ cp config.yaml.example config.yaml
 You have three options to run the application:
 
 ### Option 1: Run both services with single command
-
-On Unix-like systems (Linux/MacOS):
 ```bash
-chmod +x run.sh  # Make script executable (first time only)
-./run.sh
-```
-
-On Windows:
-```batch
-run.bat
+./scripts/run.sh  # On Unix-like systems
+# or
+scripts\run.bat   # On Windows
 ```
 
 ### Option 2: Run services separately
 1. Start the FastAPI server:
 ```bash
-python run_server.py
+cd backend
+python main.py
 ```
 
 2. In a new terminal, start the Streamlit frontend:
 ```bash
-streamlit run app.py
-```
-
-### Option 3: Development mode
-For development, you might want to run the services in separate terminals to see the logs clearly:
-* Terminal 1: `python run_server.py`
-* Terminal 2: `streamlit run app.py`
+cd frontend
+streamlit run app/main.py  # On Unix-like systems
 
 The services will be available at:
 * Frontend: http://localhost:8501

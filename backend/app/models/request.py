@@ -1,11 +1,9 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
 
 class GenerateRequest(BaseModel):
-    """Request model for cover letter generation"""
     job_description: str
     resume: str
-    api_key: Optional[str] = None
+    api_key: str
     provider: str = "openai"
 
     model_config = ConfigDict(
@@ -16,6 +14,5 @@ class GenerateRequest(BaseModel):
                 "api_key": "your-api-key",
                 "provider": "openai"
             }
-        },
-        protected_namespaces=()
+        }
     ) 

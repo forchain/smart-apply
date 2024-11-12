@@ -1,9 +1,9 @@
+# OpenAI Configuration
 openai:
   model: gpt-4-turbo-preview
-  api_key: your_openai_key_here  # optional
   base_url: https://api.openai.com/v1
 
+# DeepSeek Configuration
 deepseek:
   model: deepseek-chat
-  api_key: your_deepseek_key_here  # optional
-  base_url: https://api.deepseek.com 
+  base_url: https://api.deepseek.com/v1

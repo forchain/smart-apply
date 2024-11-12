@@ -1,11 +1,45 @@
 # API Configuration
 api:
-  base_url: "http://localhost:8000/api/v1"  # FastAPI backend URL
+  base_url: "http://localhost:8000/api/v1"
+
+# AI Model Providers
+providers:
+  openai:
+    api_key: "your-openai-key-here"  # default key, can be overridden in UI
+  deepseek:
+    api_key: "your-deepseek-key-here"  # default key, can be overridden in UI
 
 # Default Templates
 defaults:
   resume: |
-    # Your default resume template here
+    John Doe
+    Software Engineer
     
+    Experience:
+    - Senior Software Engineer at Tech Corp (2020-Present)
+      * Led development of cloud-based applications
+      * Managed team of 5 developers
+    
+    Skills:
+    - Python, JavaScript, React
+    - Cloud platforms (AWS, GCP)
+    - Agile methodologies
+    
+    Education:
+    - BS Computer Science, State University (2016)
+
   jd: |
-    # Your default job description template here 
+    Software Engineer Position
+    
+    We are seeking a talented Software Engineer to join our team.
+    
+    Requirements:
+    - 3+ years of experience in software development
+    - Strong proficiency in Python
+    - Experience with cloud platforms
+    - Bachelor's degree in Computer Science or related field
+    
+    Responsibilities:
+    - Develop and maintain web applications
+    - Write clean, efficient code
+    - Collaborate with cross-functional teams
