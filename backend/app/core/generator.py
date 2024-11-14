@@ -1,82 +1,89 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.output_parser import StrOutputParser
+from typing import List
 import logging
 from .config import Config
+from .agents.analyzer import MatchingAnalyzer
+from .agents.writer import LetterWriter
+from .agents.checker import FactChecker
 
 class CoverLetterGenerator:
     def __init__(self, api_key: str, provider: str = "openai", language: str = "zh", example: str = ""):
+        # Configure logging
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.StreamHandler(),  # Output to console
+                logging.FileHandler('cover_letter_generator.log')  # Output to file
+            ]
+        )
+        self.logger = logging.getLogger(__name__)
+        
         self.provider = provider.lower()
         self.language = language.lower()
         self.config = Config()
+        self.examples = self._parse_examples(example)
         
-        # Get provider configuration
+        # Initialize base model configuration
         base_url = self.config.get_base_url(self.provider)
         self.model = self.config.get_model(self.provider)
         
         if not base_url or not self.model:
             raise ValueError(f"Invalid configuration for provider: {self.provider}")
         
-        # Initialize LangChain chat model
-        self.chat = ChatOpenAI(
+        # Initialize LLM
+        self.llm = ChatOpenAI(
             model=self.model,
             openai_api_key=api_key,
             openai_api_base=base_url,
             temperature=0.7
         )
+        
+        # Initialize agents
+        self.analyzer = MatchingAnalyzer(self.llm)
+        self.writer = LetterWriter(self.llm, self.examples, self.language)
+        self.checker = FactChecker(self.llm)
 
-        # Create system prompt
-        system_prompt = """You are a professional cover letter writer. 
-Your task is to generate a cover letter that closely follows the style, tone, and structure of the provided example while adapting the content to match the specific job description and resume."""
-
-        # Create base prompt
-        user_prompt = f"""First, carefully analyze the following example cover letter style:
-
-{example.strip() if example.strip() else 'No example provided - use a professional, standard cover letter format.'}
-
-Now, using the same writing style, tone, and structure as the example above, generate a cover letter in {self.language} language based on:
-
-Job Description:
-{{job_description}}
-
-Resume:
-{{resume}}
-
-Important requirements:
-1. Match the exact structure and format of the example (if provided)
-2. Use similar transition phrases and expressions
-3. Maintain the same level of formality and tone
-4. Adapt the content to highlight relevant experience and skills
-5. Keep similar paragraph length and organization
-6. Ensure the output is in {self.language} language
-
-Remember: The goal is to create a cover letter that feels like it was written in the same style as the example while being perfectly tailored to this specific job and candidate."""
-
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            ("user", user_prompt)
-        ])
-
-        # Print prompt for debugging
-        print("User Prompt:")
-        print(user_prompt)
-
-        # Create output parser
-        self.output_parser = StrOutputParser()
-
-        # Create generation chain
-        self.chain = self.prompt | self.chat | self.output_parser
+    def _parse_examples(self, example_text: str) -> List[str]:
+        """Parse example text, treating each line as an independent example"""
+        if not example_text:
+            return []
+        
+        # Split by lines and filter empty lines
+        examples = [
+            line.strip() for line in example_text.splitlines()
+            if line.strip() and not line.isspace()
+        ]
+        
+        self.logger.info(f"Found {len(examples)} examples in the provided text")
+        return examples
 
     def generate(self, job_description: str, resume: str) -> str:
+        """Main process for generating cover letter"""
         try:
-            # Generate cover letter using LangChain
-            cover_letter = self.chain.invoke({
-                "job_description": job_description,
-                "resume": resume
-            })
-
-            return cover_letter.strip()
+            self.logger.info("Starting cover letter generation process...")
+            self.logger.debug(f"Input JD length: {len(job_description)}, Resume length: {len(resume)}")
+            
+            # Step 1: Generate matching analysis report
+            self.logger.info("Step 1: Generating match analysis report...")
+            match_report = self.analyzer.analyze(job_description, resume)
+            
+            # Step 2: Generate initial cover letter
+            self.logger.info("Step 2: Generating initial cover letter...")
+            initial_letter = self.writer.write(match_report)
+            
+            # Step 3: Fact checking and correction
+            self.logger.info("Step 3: Performing fact checking...")
+            verification_result = self.checker.verify(initial_letter, resume)
+            
+            if not verification_result["is_accurate"]:
+                self.logger.info("Corrections needed, using corrected version...")
+                self.logger.debug(f"Corrections required: {verification_result['corrections']}")
+                return verification_result["corrected_letter"]
+            
+            self.logger.info("Cover letter generation completed successfully")
+            return initial_letter.strip()
 
         except Exception as e:
-            logging.error(f"Error generating cover letter with {self.provider}: {str(e)}")
+            self.logger.error(f"Error in cover letter generation: {str(e)}", exc_info=True)
             raise

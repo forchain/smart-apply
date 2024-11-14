@@ -5,41 +5,14 @@ api:
 # AI Model Providers
 providers:
   openai:
-    api_key: "your-openai-key-here"  # default key, can be overridden in UI
+    api_key: "your-openai-key-here"
   deepseek:
-    api_key: "your-deepseek-key-here"  # default key, can be overridden in UI
+    api_key: "your-deepseek-key-here"
 
-# Default Templates
-defaults:
-  resume: |
-    John Doe
-    Software Engineer
-    
-    Experience:
-    - Senior Software Engineer at Tech Corp (2020-Present)
-      * Led development of cloud-based applications
-      * Managed team of 5 developers
-    
-    Skills:
-    - Python, JavaScript, React
-    - Cloud platforms (AWS, GCP)
-    - Agile methodologies
-    
-    Education:
-    - BS Computer Science, State University (2016)
-
-  jd: |
-    Software Engineer Position
-    
-    We are seeking a talented Software Engineer to join our team.
-    
-    Requirements:
-    - 3+ years of experience in software development
-    - Strong proficiency in Python
-    - Experience with cloud platforms
-    - Bachelor's degree in Computer Science or related field
-    
-    Responsibilities:
-    - Develop and maintain web applications
-    - Write clean, efficient code
-    - Collaborate with cross-functional teams
+# Template Paths
+templates:
+  resume: "templates/default_resume.txt"
+  job_description: "templates/default_jd.txt"
+  cover_letter:
+    en: "templates/cover_letter_en.txt"
+    zh: "templates/cover_letter_zh.txt"
