@@ -7,7 +7,8 @@ class GenerateRequest(BaseModel):
     api_key: str
     provider: str = "openai"
     language: str = "zh"
-    example: str = ""  # 使用空字符串作为默认值
+    example: str = ""
+    enable_fact_check: bool = False
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -17,7 +18,8 @@ class GenerateRequest(BaseModel):
                 "api_key": "your-api-key",
                 "provider": "openai",
                 "language": "zh",
-                "example": ""
+                "example": "",
+                "enable_fact_check": False
             }
         }
     ) 

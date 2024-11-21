@@ -8,6 +8,8 @@ providers:
     api_key: "your-openai-key-here"
   deepseek:
     api_key: "your-deepseek-key-here"
+  grok:
+    api_key: "your-grok-key-here"
 
 # Template Paths
 templates:

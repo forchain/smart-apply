@@ -47,10 +47,20 @@ class FactChecker:
             "resume": resume
         })
         
-        self.logger.info("Fact verification completed")
+        self.logger.info(f"Fact verification completed: {result}")
         
         try:
-            result_dict = json.loads(str(result))
+            # Extract JSON content between first { and last }
+            result_str = str(result)
+            start_idx = result_str.find('{')
+            end_idx = result_str.rfind('}')
+            
+            if start_idx == -1 or end_idx == -1:
+                raise json.JSONDecodeError("No JSON object found", result_str, 0)
+                
+            json_str = result_str[start_idx:end_idx + 1]
+            result_dict = json.loads(json_str)
+            
             return {
                 "is_accurate": result_dict.get("is_accurate", False),
                 "corrections": result_dict.get("corrections", []),

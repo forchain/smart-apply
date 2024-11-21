@@ -7,3 +7,8 @@ openai:
 deepseek:
   model: deepseek-chat
   base_url: https://api.deepseek.com/v1
+
+# Grok Configuration
+grok:
+  model: grok-beta
+  base_url: https://api.x.ai/v1

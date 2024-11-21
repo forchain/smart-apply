@@ -36,7 +36,10 @@ class CoverLetterGenerator:
             model=self.model,
             openai_api_key=api_key,
             openai_api_base=base_url,
-            temperature=0.7
+            # Controls randomness in model output (0.0-1.0)
+            # Higher values (e.g. 0.7) make output more creative but less focused
+            # Lower values make output more deterministic and focused
+            temperature=0.3
         )
         
         # Initialize agents
@@ -58,7 +61,7 @@ class CoverLetterGenerator:
         self.logger.info(f"Found {len(examples)} examples in the provided text")
         return examples
 
-    def generate(self, job_description: str, resume: str) -> str:
+    def generate(self, job_description: str, resume: str, enable_fact_check: bool = False) -> dict:
         """Main process for generating cover letter"""
         try:
             self.logger.info("Starting cover letter generation process...")
@@ -72,17 +75,26 @@ class CoverLetterGenerator:
             self.logger.info("Step 2: Generating initial cover letter...")
             initial_letter = self.writer.write(match_report)
             
-            # Step 3: Fact checking and correction
-            self.logger.info("Step 3: Performing fact checking...")
-            verification_result = self.checker.verify(initial_letter, resume)
-            
-            if not verification_result["is_accurate"]:
-                self.logger.info("Corrections needed, using corrected version...")
-                self.logger.debug(f"Corrections required: {verification_result['corrections']}")
-                return verification_result["corrected_letter"]
+            if enable_fact_check:
+                # Step 3: Fact checking and correction
+                self.logger.info("Step 3: Performing fact checking...")
+                verification_result = self.checker.verify(initial_letter, resume)
+                
+                if not verification_result["is_accurate"]:
+                    self.logger.info("Corrections needed, using corrected version...")
+                    self.logger.debug(f"Corrections required: {verification_result['corrections']}")
+                    return {
+                        "match_report": match_report,
+                        "initial_letter": initial_letter,
+                        "cover_letter": verification_result["corrected_letter"]
+                    }
             
             self.logger.info("Cover letter generation completed successfully")
-            return initial_letter.strip()
+            return {
+                "match_report": match_report,
+                "initial_letter": initial_letter if enable_fact_check else None,
+                "cover_letter": initial_letter.strip()
+            }
 
         except Exception as e:
             self.logger.error(f"Error in cover letter generation: {str(e)}", exc_info=True)

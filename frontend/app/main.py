@@ -43,8 +43,8 @@ def setup_sidebar(config):
     
     model_provider = st.sidebar.selectbox(
         "Select AI Model",
-        ["deepseek", "openai"],
-        index=["deepseek", "openai"].index("deepseek")
+        ["deepseek", "openai", "grok"],
+        index=["deepseek", "openai", "grok"].index("deepseek")
     )
     
     default_api_key = config.get_provider_api_key(model_provider.lower())
@@ -54,14 +54,21 @@ def setup_sidebar(config):
         type="password"
     )
     
-    return model_provider, api_key, language_code, example
+    # Add fact check option
+    enable_fact_check = st.sidebar.checkbox(
+        "Enable Fact Checking",
+        value=False,
+        help="Enable fact checking to verify cover letter content against resume (slower but more accurate)"
+    )
+    
+    return model_provider, api_key, language_code, example, enable_fact_check
 
 def render():
     config = Config()
     api_base_url = config.get_api_base_url()
 
     setup_page()
-    model_provider, api_key, language, example = setup_sidebar(config)
+    model_provider, api_key, language, example, enable_fact_check = setup_sidebar(config)
     
     # Input sections
     col1, col2 = st.columns(2)
@@ -88,9 +95,10 @@ def render():
         if not job_description or not resume_text:
             st.error("Please provide both the job description and your resume")
         else:
-            handle_generation(job_description, resume_text, api_base_url, api_key, model_provider, language, example)
+            handle_generation(job_description, resume_text, api_base_url, api_key, 
+                            model_provider, language, example, enable_fact_check)
 
-def handle_generation(job_description, resume_text, api_base_url, api_key, model_provider, language, example):
+def handle_generation(job_description, resume_text, api_base_url, api_key, model_provider, language, example, enable_fact_check):
     try:
         # Print request data for debugging
         print("Request Data:")
@@ -100,7 +108,8 @@ def handle_generation(job_description, resume_text, api_base_url, api_key, model
             "api_key": api_key,
             "provider": model_provider.lower(),
             "language": language,
-            "example": example.strip()
+            "example": example.strip(),
+            "enable_fact_check": enable_fact_check  # Add fact check flag
         }
         print(request_data)
 
@@ -116,7 +125,30 @@ def handle_generation(job_description, resume_text, api_base_url, api_key, model
             
             if response.status_code == 200:
                 result = response.json()
-                display_cover_letter(result.get("cover_letter"))
+                
+                # Create tabs for different sections
+                if enable_fact_check:
+                    tab_final, tab_initial, tab_match = st.tabs([
+                        "Final Cover Letter", 
+                        "Initial Draft", 
+                        "Matching Report"
+                    ])
+                else:
+                    tab_final, tab_match = st.tabs([
+                        "Cover Letter", 
+                        "Matching Report"
+                    ])
+                
+                # Display content in respective tabs
+                with tab_final:
+                    display_cover_letter(result.get("cover_letter"))
+                    
+                if enable_fact_check:
+                    with tab_initial:
+                        display_initial_cover_letter(result.get("initial_letter"))
+                    
+                with tab_match:
+                    display_matching_report(result.get("match_report"))
             else:
                 error_detail = response.json().get('detail', 'Unknown error')
                 st.error(f"API Error: {error_detail}")
@@ -126,12 +158,34 @@ def handle_generation(job_description, resume_text, api_base_url, api_key, model
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
 
+def display_matching_report(match_report):
+    if match_report:
+        st.markdown("### Matching Analysis Report")
+        st.markdown(match_report)
+        st.download_button(
+            label="Download Matching Report",
+            data=match_report,
+            file_name="matching_report.txt",
+            mime="text/plain"
+        )
+
+def display_initial_cover_letter(initial_letter):
+    if initial_letter:
+        st.markdown("### Initial Cover Letter (Before Fact Check)")
+        st.markdown(initial_letter)
+        st.download_button(
+            label="Download Initial Cover Letter",
+            data=initial_letter,
+            file_name="initial_cover_letter.txt",
+            mime="text/plain"
+        )
+
 def display_cover_letter(cover_letter):
     if cover_letter:
-        st.markdown("### Generated Cover Letter")
+        st.markdown("### Final Cover Letter (After Fact Check)")
         st.markdown(cover_letter)
         st.download_button(
-            label="Download Cover Letter",
+            label="Download Final Cover Letter",
             data=cover_letter,
             file_name="cover_letter.txt",
             mime="text/plain"

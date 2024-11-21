@@ -18,10 +18,15 @@ async def generate_cover_letter(request: GenerateRequest):
             request.language,
             request.example
         )
-        cover_letter = generator.generate(request.job_description, request.resume)
-        if not cover_letter:
+        result = generator.generate(
+            request.job_description, 
+            request.resume,
+            request.enable_fact_check  # Add fact check flag
+        )
+        if not result:
             raise ValueError("Failed to generate cover letter")
-        return {"cover_letter": cover_letter}
+            
+        return result
     except Exception as e:
         logging.error(f"Error in generate_cover_letter: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
